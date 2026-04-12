@@ -6,9 +6,23 @@ Pure Python Pacman game using Pygame. No other languages or frameworks.
 
 ## Project State
 
-**Current working implementation:** `src/main.py` (copy of archive/src4/main.py)
+**Current working implementation:** Modular structure in `src/` package
 
-The `archive/` directory contains historical implementation attempts. Do not edit files in `archive/`. Active development should be in `src/main.py`.
+The `archive/` directory contains historical implementation attempts. Do not edit files in `archive/`. Active development should be in the `src/` package.
+
+## Project Structure
+
+```
+src/
+├── __init__.py       # Package marker
+├── main.py           # Entry point: pygame init, game loop, event handling, game_over_screen(), main()
+├── constants.py      # Game constants (SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TILE_SIZE, colors, directions, mob speed, food constants, highscore file path)
+├── pacman.py         # Pacman class with movement, collision, and drawing
+├── mob.py            # Mob class with random/chaser movement, collision, and drawing
+├── maze.py           # create_maze(), create_food(), draw_maze(), draw_food()
+├── game.py           # Game class with level management
+└── highscore.py      # load_highscore(), save_highscore()
+```
 
 ## Setup & Run
 
@@ -20,7 +34,7 @@ source .venv/bin/activate
 pip install -r requirements.txt
 
 # Run the game
-python src/main.py
+python -m src.main
 ```
 
 Use `.venv/` virtual environment (not `venv/`)
@@ -43,16 +57,10 @@ Use `.venv/` virtual environment (not `venv/`)
 
 ## Entry Point
 
-`src/main.py:549` - `main()` function
-
-## Recent Changes (Current Session)
-
-- **Right wall vibration fix**: Modified Pacman's wall collision response to only align to perpendicular axis instead of snapping to tile center
-  - Moving UP/DOWN: align X to grid center, keep Y position
-  - Moving LEFT/RIGHT: align Y to grid center, keep X position
-  - Prevents oscillation between grid center and wall collision point
+`src/main.py` - `main()` function
 
 ## Guidelines
 
 - **Do not edit `archive/` files** - these are historical snapshots
-- Edit `src/main.py` for active development
+- Edit files in the `src/` package for active development
+- Use relative imports within the `src` package (e.g., `from .constants import TILE_SIZE`)
