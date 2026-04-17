@@ -6,6 +6,9 @@ SCREEN_HEIGHT = 768
 FPS = 60
 TILE_SIZE = 40
 
+# Pacman size
+PACMAN_RADIUS = 12
+
 # Colors
 BLACK = (0, 0, 0)
 BLUE = (0, 0, 255)

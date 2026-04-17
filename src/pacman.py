@@ -5,6 +5,7 @@ import pygame
 from .constants import (
     DOWN,
     LEFT,
+    PACMAN_RADIUS,
     RIGHT,
     SCREEN_HEIGHT,
     SCREEN_WIDTH,
@@ -19,7 +20,7 @@ class Pacman:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.radius = TILE_SIZE // 2 - 12
+        self.radius = PACMAN_RADIUS
         self.direction = STOP
         self.next_direction = STOP
         self.speed = 2
