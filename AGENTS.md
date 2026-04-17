@@ -19,7 +19,8 @@ src/
 ├── constants.py      # Game constants (SCREEN_WIDTH, SCREEN_HEIGHT, FPS, TILE_SIZE, PACMAN_RADIUS, colors, directions, mob speed, food constants, highscore file path)
 ├── pacman.py         # Pacman class with movement, collision, and drawing
 ├── mob.py            # Mob class with random/chaser movement, collision, and drawing
-├── maze.py           # create_maze(), create_food(), draw_maze(), draw_food()
+├── maze.py           # create_maze() delegates to level_generator, create_food(), draw_maze(), draw_food()
+├── level_generator.py # Procedural maze generation (generate_maze_grid, maze_to_walls, _verify_reachability, _check_density)
 ├── game.py           # Game class with level management
 └── highscore.py      # load_highscore(), save_highscore()
 ```
@@ -44,8 +45,8 @@ Use `.venv/` virtual environment (not `venv/`)
 - **Window:** 1024x768 pixels, 60 FPS
 - **Tile system:** TILE_SIZE=40, Pacman/mobs move in grid-aligned tiles (25x19 grid)
 - **Pacman:** Yellow circle (radius=12px = PACMAN_RADIUS), speed=2, animated mouth
+- **Maze:** Procedurally generated each level using recursive backtracking; walls ≤ 60% of area, all empty tiles reachable (BFS verified); blue walls, 40px outer borders (occupies tiles 0 and 24/18), internal grid-based structures
 - **Mobs:** Red circles, speed=2, random movement; Level 4+ adds pink chaser (speed=1)
-- **Maze:** Blue walls, 40px outer borders (occupies tiles 0 and 24/18), internal grid-based structures
 - **Food:** White dots (radius=3px), score=10 each
 - **Highscore:** Persisted to `highscore.txt` in project root, displayed during gameplay and on game over screen
 

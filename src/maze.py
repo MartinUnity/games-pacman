@@ -1,13 +1,5 @@
-import pygame
-
-from .constants import (
-    BLUE,
-    FOOD_RADIUS,
-    SCREEN_HEIGHT,
-    SCREEN_WIDTH,
-    TILE_SIZE,
-    WHITE,
-)
+from .constants import SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE
+from .level_generator import draw_food, draw_maze, generate_maze_grid, maze_to_walls
 
 
 def create_food(walls):
@@ -63,40 +55,6 @@ def create_food(walls):
 
 
 def create_maze():
-    # Create maze walls as rectangles (x, y, width, height)
-    walls = []
-
-    # Outer borders (moved inward by one tile for playable area)
-    walls.append((0, 0, SCREEN_WIDTH, TILE_SIZE))  # Top
-    walls.append((0, SCREEN_HEIGHT - TILE_SIZE, SCREEN_WIDTH, TILE_SIZE))  # Bottom
-    walls.append((0, 0, TILE_SIZE, SCREEN_HEIGHT))  # Left
-    walls.append(
-        (24 * TILE_SIZE, 0, TILE_SIZE, SCREEN_HEIGHT)
-    )  # Right border (full tile 24)
-
-    # Internal walls - expanded for 25x19 grid
-    # Horizontal walls
-    for i in range(3, 23, 4):
-        walls.append((i * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, 4 * TILE_SIZE))
-        walls.append((i * TILE_SIZE, 7 * TILE_SIZE, TILE_SIZE, 3 * TILE_SIZE))
-
-    # More internal structures
-    walls.append((6 * TILE_SIZE, 3 * TILE_SIZE, 14 * TILE_SIZE, TILE_SIZE))
-    walls.append((6 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE))
-    walls.append((17 * TILE_SIZE, 3 * TILE_SIZE, TILE_SIZE, 5 * TILE_SIZE))
-    walls.append((6 * TILE_SIZE, 7 * TILE_SIZE, 2 * TILE_SIZE, 3 * TILE_SIZE))
-    walls.append((15 * TILE_SIZE, 7 * TILE_SIZE, 2 * TILE_SIZE, 3 * TILE_SIZE))
-    walls.append((9 * TILE_SIZE, 9 * TILE_SIZE, 6 * TILE_SIZE, TILE_SIZE))
-
-    return walls
-
-
-def draw_food(screen, food):
-    """Draw all food dots"""
-    for fx, fy in food:
-        pygame.draw.circle(screen, WHITE, (int(fx), int(fy)), FOOD_RADIUS)
-
-
-def draw_maze(screen, walls):
-    for wall in walls:
-        pygame.draw.rect(screen, BLUE, wall)
+    """Generate a new maze using procedural generation."""
+    maze = generate_maze_grid()
+    return maze_to_walls(maze)
