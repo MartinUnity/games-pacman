@@ -4,6 +4,7 @@ Generates mazes using randomized recursive backtracking with:
 - Guaranteed reachability (all empty tiles accessible via BFS)
 - Wall density capped at ~60%
 - Pacman spawn tile always kept clear
+- Edge openings so chaser mobs can enter the maze
 """
 
 import random
@@ -60,6 +61,7 @@ def generate_maze_grid(seed=None):
         maze = _carve_maze(MAZE_COLS, MAZE_ROWS, rng)
         _ensure_spawn_open(maze)
         _widen_passages(maze, rng)
+        _ensure_edge_openings(maze, rng)
         if _verify_reachability(maze) and _check_density(maze):
             return maze
     return _fallback_grid()
@@ -239,6 +241,40 @@ def _widen_passages(grid, rng):
                                         grid[ny2][nx2] = 0
                                         break
                             break
+
+
+def _ensure_edge_openings(grid, rng):
+    """Carve openings at the edges of the playable area so mobs can enter.
+
+    The chaser spawns in the outer corridor (col 23, row 1, etc.) and needs
+    at least one gap in the maze boundary to get inside.  We carve a small
+    opening on each edge that has a mob spawn point nearby.
+    """
+    rows, cols = len(grid), len(grid[0])
+
+    # Right edge (col = cols - 1 = 20 → world col 22): chaser spawns at col 23
+    for y in range(rows):
+        if grid[y][cols - 1] == 1 and grid[y][cols - 2] == 0:
+            grid[y][cols - 1] = 0
+            break
+
+    # Left edge (col = 0 → world col 2): chaser spawns at col 3 for some levels
+    for y in range(rows):
+        if grid[y][0] == 1 and grid[y][1] == 0:
+            grid[y][0] = 0
+            break
+
+    # Top edge (row = 0 → world row 2): chaser spawns at row 2 for some levels
+    for x in range(cols):
+        if grid[0][x] == 1 and grid[1][x] == 0:
+            grid[0][x] = 0
+            break
+
+    # Bottom edge (row = rows - 1 → world row 16): mob spawns at row 17
+    for x in range(cols):
+        if grid[rows - 1][x] == 1 and grid[rows - 2][x] == 0:
+            grid[rows - 1][x] = 0
+            break
 
 
 # ── Invariants ───────────────────────────────────────────────────

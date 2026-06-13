@@ -1,11 +1,12 @@
-import math
 import random
+from collections import deque
 
 import pygame
 
 from .constants import (
     DOWN,
     LEFT,
+    MOB_SPEED,
     RED,
     RIGHT,
     SCREEN_HEIGHT,
@@ -13,7 +14,6 @@ from .constants import (
     STOP,
     TILE_SIZE,
     UP,
-    MOB_SPEED,
 )
 
 
@@ -69,26 +69,99 @@ class Mob:
                 )  # Change direction every 15-30 frames
                 break
 
+    def _find_path(self, pacman_x, pacman_y, walls):
+        """BFS pathfinding from chaser to Pacman through the maze.
+
+        Returns a list of (tile_x, tile_y) tiles forming the shortest
+        path from the chaser's current tile to Pacman's tile, excluding
+        the chaser's own starting tile.  Returns ``None`` if no path
+        exists.
+        """
+        grid_w = SCREEN_WIDTH // TILE_SIZE
+        grid_h = SCREEN_HEIGHT // TILE_SIZE
+
+        # Build wall-tile set from wall rectangles
+        wall_tiles = set()
+        for w in walls:
+            wx = int(w[0] // TILE_SIZE)
+            wy = int(w[1] // TILE_SIZE)
+            ww = int(w[2] // TILE_SIZE)
+            wh = int(w[3] // TILE_SIZE)
+            for tx in range(wx, wx + ww):
+                for ty in range(wy, wy + wh):
+                    wall_tiles.add((tx, ty))
+
+        start_x = int(self.x // TILE_SIZE)
+        start_y = int(self.y // TILE_SIZE)
+        target_x = int(pacman_x // TILE_SIZE)
+        target_y = int(pacman_y // TILE_SIZE)
+
+        if (start_x, start_y) == (target_x, target_y):
+            return []
+
+        queue = deque([(start_x, start_y)])
+        visited = {(start_x, start_y)}
+        parent: dict[tuple[int, int], tuple[int, int]] = {}
+
+        while queue:
+            cx, cy = queue.popleft()
+            if (cx, cy) == (target_x, target_y):
+                # Reconstruct path back to start
+                path: list[tuple[int, int]] = []
+                cur: tuple[int, int] = (target_x, target_y)
+                while cur != (start_x, start_y):
+                    path.append(cur)
+                    cur = parent[cur]
+                path.reverse()
+                return path
+
+            for dx, dy in ((0, -1), (0, 1), (-1, 0), (1, 0)):
+                nx, ny = cx + dx, cy + dy
+                if (
+                    0 <= nx < grid_w
+                    and 0 <= ny < grid_h
+                    and (nx, ny) not in wall_tiles
+                    and (nx, ny) not in visited
+                ):
+                    visited.add((nx, ny))
+                    parent[(nx, ny)] = (cx, cy)
+                    queue.append((nx, ny))
+
+        return None  # No path found
+
     def _target_pacman(self, pacman_x, pacman_y, walls):
-        """Choose direction that moves toward Pacman"""
-        directions = [UP, DOWN, LEFT, RIGHT]
+        """Pathfind through the maze to Pacman's position."""
+        path = self._find_path(pacman_x, pacman_y, walls)
 
-        # Sort directions by distance to Pacman
-        def distance_after_move(direction):
-            next_x = self.x + direction[0] * self.speed
-            next_y = self.y + direction[1] * self.speed
-            return (next_x - pacman_x) ** 2 + (next_y - pacman_y) ** 2
+        if path and len(path) > 0:
+            next_tx, next_ty = path[0]
 
-        # Try to move in each direction, preferring those that get closer
-        sorted_directions = sorted(directions, key=distance_after_move)
+            # Determine direction toward next tile
+            if next_tx > int(self.x // TILE_SIZE):
+                self.direction = RIGHT
+            elif next_tx < int(self.x // TILE_SIZE):
+                self.direction = LEFT
+            elif next_ty > int(self.y // TILE_SIZE):
+                self.direction = DOWN
+            elif next_ty < int(self.y // TILE_SIZE):
+                self.direction = UP
 
-        for direction in sorted_directions:
-            if self._can_move(direction, walls):
-                self.direction = direction
-                self.change_direction_delay = 5 + random.randint(
-                    0, 5
-                )  # More frequent updates for chaser
-                break
+            self.change_direction_delay = 5 + random.randint(0, 5)
+        else:
+            # Fallback: greedy approach if pathfinding fails
+            directions = [UP, DOWN, LEFT, RIGHT]
+
+            def distance_after_move(direction):
+                next_x = self.x + direction[0] * self.speed
+                next_y = self.y + direction[1] * self.speed
+                return (next_x - pacman_x) ** 2 + (next_y - pacman_y) ** 2
+
+            sorted_directions = sorted(directions, key=distance_after_move)
+            for direction in sorted_directions:
+                if self._can_move(direction, walls):
+                    self.direction = direction
+                    self.change_direction_delay = 5 + random.randint(0, 5)
+                    break
 
     def _can_move(self, direction, walls):
         next_x = self.x + direction[0] * self.speed

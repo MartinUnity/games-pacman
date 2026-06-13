@@ -39,6 +39,22 @@ pip install -r requirements.txt
 - **Level 8**: 4 normal mobs + 4 seeker mobs
 - **Level 9**: 5 normal mobs + 5 seeker mobs
 
+## Level Mob Verification
+
+The table below verifies that the README documentation matches the actual mob counts in the game implementation:
+
+| Level | Code (normal + seeker) | README | Match |
+|-------|----------------------|--------|-------|
+| 1 | 1 + 0 | 1 normal mob | ✅ |
+| 2 | 2 + 0 | 2 normal mobs | ✅ |
+| 3 | 2 + 0 | 2 normal mobs | ✅ |
+| 4 | 2 + 1 | 2 normal + 1 seeker | ✅ |
+| 5 | 2 + 2 | 2 normal + 2 seekers | ✅ |
+| 6 | 2 + 3 | 2 normal + 3 seekers | ✅ |
+| 7 | 3 + 3 | 3 normal + 3 seekers | ✅ |
+| 8 | 4 + 4 | 4 normal + 4 seekers | ✅ |
+| 9 | 5 + 5 | 5 normal + 5 seekers | ✅ |
+
 ## Game Details
 
 - **Window Size**: 1024x768 pixels
