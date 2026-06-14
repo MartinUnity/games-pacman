@@ -41,7 +41,7 @@ PACMAN_START = (4, 10)
 # ── Public API ───────────────────────────────────────────────────
 
 
-def generate_maze_grid(seed=None):
+def generate_maze_grid(seed=None, max_wall_ratio=0.60, spawn_tile=(4, 10)):
     """Generate a maze grid via randomized recursive backtracking.
 
     Returns
@@ -55,14 +55,18 @@ def generate_maze_grid(seed=None):
     ----------
     seed : int or None
         Optional random seed for reproducible mazes.
+    max_wall_ratio : float
+        Maximum allowed wall proportion (default 0.60).
+    spawn_tile : tuple[int, int]
+        Pacman's spawn position in world coordinates.
     """
     rng = random.Random(seed)
     for _attempt in range(100):
         maze = _carve_maze(MAZE_COLS, MAZE_ROWS, rng)
-        _ensure_spawn_open(maze)
+        _ensure_spawn_open(maze, spawn_tile)
         _widen_passages(maze, rng)
         _ensure_edge_openings(maze, rng)
-        if _verify_reachability(maze) and _check_density(maze):
+        if _verify_reachability(maze) and _check_density(maze, max_wall_ratio):
             return maze
     return _fallback_grid()
 
@@ -164,10 +168,10 @@ def _carve_maze(cols, rows, rng):
     return grid
 
 
-def _ensure_spawn_open(grid):
+def _ensure_spawn_open(grid, spawn_tile=(4, 10)):
     """Force the tile where Pacman spawns to be empty (0)."""
-    gx = PACMAN_START[0] - PLAY_LEFT
-    gy = PACMAN_START[1] - PLAY_TOP
+    gx = spawn_tile[0] - PLAY_LEFT
+    gy = spawn_tile[1] - PLAY_TOP
     if 0 <= gx < len(grid[0]) and 0 <= gy < len(grid):
         grid[gy][gx] = 0
 

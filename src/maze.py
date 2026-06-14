@@ -2,7 +2,7 @@ from .constants import SCREEN_HEIGHT, SCREEN_WIDTH, TILE_SIZE
 from .level_generator import draw_food, draw_maze, generate_maze_grid, maze_to_walls
 
 
-def create_food(walls):
+def create_food(walls, spawn_tile=(4, 10)):
     """Create food dots in all non-wall tiles that are reachable from Pacman's start position"""
     food = []
     # Grid size based on screen and tile size
@@ -21,8 +21,7 @@ def create_food(walls):
                 wall_tiles.add((x, y))
 
     # Find all reachable tiles from Pacman's starting position using BFS
-    start_x = 4  # Pacman starts at tile (4, 10)
-    start_y = 10
+    start_x, start_y = spawn_tile
     reachable_tiles = set()
 
     # BFS to find all reachable tiles
@@ -54,7 +53,7 @@ def create_food(walls):
     return food
 
 
-def create_maze():
+def create_maze(max_wall_ratio=0.60, spawn_tile=(4, 10)):
     """Generate a new maze using procedural generation."""
-    maze = generate_maze_grid()
+    maze = generate_maze_grid(max_wall_ratio=max_wall_ratio, spawn_tile=spawn_tile)
     return maze_to_walls(maze)

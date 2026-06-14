@@ -96,7 +96,8 @@ def main():
         game.reset_level()
 
         # Create Pacman
-        pacman = Pacman(4 * TILE_SIZE + TILE_SIZE // 2, 10 * TILE_SIZE + TILE_SIZE // 2)
+        sx, sy = game.spawn_pos()
+        pacman = Pacman(sx * TILE_SIZE + TILE_SIZE // 2, sy * TILE_SIZE + TILE_SIZE // 2)
 
         # Load highscore
         highscore = load_highscore()
@@ -119,14 +120,15 @@ def main():
                         pacman.next_direction = LEFT
                     elif event.key == pygame.K_RIGHT:
                         pacman.next_direction = RIGHT
-                    # Cheat keys 2-9 to jump to specific levels
-                    elif pygame.K_2 <= event.key <= pygame.K_9:
-                        level_num = event.key - pygame.K_0
+                    # Cheat keys 2-9 to jump to specific levels, 0 for level 10
+                    elif pygame.K_2 <= event.key <= pygame.K_9 or event.key == pygame.K_0:
+                        level_num = event.key - pygame.K_0 if event.key != pygame.K_0 else 10
                         game.level = level_num
                         game.reset_level()
                         # Reset Pacman position
-                        pacman.x = 4 * TILE_SIZE + TILE_SIZE // 2
-                        pacman.y = 10 * TILE_SIZE + TILE_SIZE // 2
+                        sx, sy = game.spawn_pos()
+                        pacman.x = sx * TILE_SIZE + TILE_SIZE // 2
+                        pacman.y = sy * TILE_SIZE + TILE_SIZE // 2
                         pacman.direction = STOP
                         pacman.next_direction = STOP
 
@@ -143,8 +145,9 @@ def main():
                 game.level += 1
                 game.reset_level()
                 # Reset Pacman position
-                pacman.x = 4 * TILE_SIZE + TILE_SIZE // 2
-                pacman.y = 10 * TILE_SIZE + TILE_SIZE // 2
+                sx, sy = game.spawn_pos()
+                pacman.x = sx * TILE_SIZE + TILE_SIZE // 2
+                pacman.y = sy * TILE_SIZE + TILE_SIZE // 2
                 pacman.direction = STOP
                 pacman.next_direction = STOP
 
